@@ -1,0 +1,18 @@
+{
+  "name": "sg-outdoor-telebot",
+  "version": "1.0.2",
+  "description": "A telegram bot to check weather details, map directions and bus timings; Meant to be used in Singapore.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Koh Jun Liew <lkjearl@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.5.0",
+    "dotenv": "^16.3.1",
+    "jimp": "^0.22.10",
+    "puppeteer": "^21.3.4",
+    "telegraf": "^4.14.0"
+  }
+}
