@@ -4,7 +4,7 @@ SG Outdoor Telegram Bot
 
 ## Video Demo
 
-#### Video Demo: [Your Video URL Here](https://youtu.be/xzobGlPePhk)
+#### Video Demo: <removed>
 
 ## Description
 
