@@ -2,7 +2,7 @@
 
 ## Description
 
-Utilizing Telegram messenger as the front-end interface, this project aims to deliver useful and practical outdoor-related information tailored specifically for users in Singapore.
+Utilizing a Telegram messenger chatbot as the front-end interface, this project aims to deliver useful and practical outdoor-related information tailored specifically for users in Singapore.
 
 ## Table of Contents
 
@@ -44,7 +44,8 @@ git push heroku main
 
 ## Usage
 
-~~To use the bot users can simply search up @SGoutdoorBot and begin usage.~~
+~~To use the bot, users can simply search up @SGoutdoorBot and begin usage.~~
+Alternatively, it can be hosted natively.
 
 ## Features:
 1. Real-time Bus Timings:
