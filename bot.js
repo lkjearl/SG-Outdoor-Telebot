@@ -1,18 +1,14 @@
-// defining constants
 const { Telegraf, Markup } = require('telegraf')
 const { message } = require('telegraf/filters')
 const { twoHourForecast, twentyfourHourForecast, rainMapping, UVindex } = require('./weather')
 const { getDirection, getStartingAddress } = require('./map')
 const { getNearbyBusstop, convertBusstopCode, getBusTimings } = require('./bus')
-
-// dotenv to draw privacy stuff (eg.token) from .env file
 require('dotenv').config()
 
-
+// Initialize bot
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
-// function for starting text/ home menu
-function startText(ctx) {
+const startText = (ctx) => {
     ctx.telegram.sendMessage(ctx.chat.id, 'Welcome to Outdoor SG bot!', {
         reply_markup: {
             inline_keyboard: [
@@ -23,31 +19,27 @@ function startText(ctx) {
         }
     })
 }
-// declaring the exact locations from each area
-const areaLocations = {
-    'northside': [
-        "Lim Chu Kang", "Mandai", "Punggol", "Seletar",
-        "Sembawang", "Sengkang", "Sungei Kadut", "Woodlands", "Yishun"
-    ],
-    'southside': [
-        "Bukit Merah", "City", "Kallang", "Queenstown", "Sentosa", "Southern Island", "Tanglin"
-    ],
-    'centralside': [
-        "Ang Mo Kio", "Bishan", "Bukit Panjang", "Bukit Timah",
-        "Central Water Catchment", "Novena", "Serangoon", "Toa Payoh"
-    ],
-    'eastside': [
-        "Bedok", "Changi", "Geylang", "Hougang", "Marine Parade",
-        "Pasir Ris", "Paya Lebar", "Pulau Tekong", "Pulau Ubin", "Tampines"
-    ],
-    'westside': [
-        "Boon Lay", "Bukit Batok", "Choa Chu Kang", "Clementi",
-        "Jalan Bahar", "Jurong East", "Jurong West", "Pioneer",
-        "Tengah", "Tuas", "Western Island", "Western Water Catchment"
-    ]
+
+// Helper function to handle async message deletion
+const deleteMessage = async (ctx) => {
+    try {
+        await ctx.deleteMessage();
+    } catch (error) {
+        console.error('Error deleting message:', error);
+    }
 }
-// function for keyboard for 2hour forecast
-function areaLocationKeyboard(area) {
+
+// Area location mapping
+const areaLocations = {
+    'northside': ["Lim Chu Kang", "Mandai", "Punggol", "Seletar", "Sembawang", "Sengkang", "Sungei Kadut", "Woodlands", "Yishun"],
+    'southside': ["Bukit Merah", "City", "Kallang", "Queenstown", "Sentosa", "Southern Island", "Tanglin"],
+    'centralside': ["Ang Mo Kio", "Bishan", "Bukit Panjang", "Bukit Timah", "Central Water Catchment", "Novena", "Serangoon", "Toa Payoh"],
+    'eastside': ["Bedok", "Changi", "Geylang", "Hougang", "Marine Parade", "Pasir Ris", "Paya Lebar", "Pulau Tekong", "Pulau Ubin", "Tampines"],
+    'westside': ["Boon Lay", "Bukit Batok", "Choa Chu Kang", "Clementi", "Jalan Bahar", "Jurong East", "Jurong West", "Pioneer", "Tengah", "Tuas", "Western Island", "Western Water Catchment"]
+}
+
+// Area location keyboard
+const areaLocationKeyboard = (area) => {
     const locations = areaLocations[area]
     const keyboard = locations.map(location => [{ text: location, callback_data: `location:${area}:${location}` }])
     keyboard.push([{text: "Back", callback_data: "2hours"}])
@@ -58,32 +50,21 @@ function areaLocationKeyboard(area) {
     }
 }
 
-// start bot
+// Start bot
 bot.start(async (ctx) => {
-    try {
-        await ctx.deleteMessage()
-    } catch (error) {
-        console.error('Error deleting message:', error)
-    }
-    startText(ctx)
-})
-// redirect to homemenu when user click 'home'
-bot.action('home', async (ctx) => {
-    try {
-        await ctx.deleteMessage()
-    } catch (error) {
-        console.error('Error deleting message:', error)
-    }
-    startText(ctx)
+    await deleteMessage(ctx);
+    startText(ctx);
 })
 
-// check weather
+// Redirect to homemenu when user click 'home'
+bot.action('home', async (ctx) => {
+    await deleteMessage(ctx);
+    startText(ctx);
+})
+
+// Check weather
 bot.action('weather', async (ctx) => {
-    try {
-        await ctx.deleteMessage()
-    } catch (error) {
-        console.error('Error deleting message:', error)
-    }
+    await deleteMessage(ctx);
     ctx.telegram.sendMessage(ctx.chat.id, 'Select your option: ',
     {
         reply_markup: {
@@ -97,12 +78,10 @@ bot.action('weather', async (ctx) => {
         }
     })
 })
+
+// Weather 24hour forecast selection
 bot.action('24hours', async (ctx) => {
-    try {
-        await ctx.deleteMessage()
-    } catch (error) {
-        console.error('Error deleting message:', error)
-    }
+    await deleteMessage(ctx);
     ctx.replyWithMarkdownV2('Check __24hr__ forecast for which area:',
     {
         reply_markup: {
@@ -117,13 +96,9 @@ bot.action('24hours', async (ctx) => {
         }
     })
 })
-// 24hr reply to user
+// Handle extracted 24hr forecast
 bot.action(['north', 'south', 'central', 'east', 'west'], async (ctx) => {
-    try {
-        await ctx.deleteMessage()
-    } catch (error) {
-        console.error('Error deleting message:', error)
-    }
+    await deleteMessage(ctx);
     const area = ctx.match[0]
     try {
         const forecast = await twentyfourHourForecast(area)
@@ -155,12 +130,9 @@ bot.action(['north', 'south', 'central', 'east', 'west'], async (ctx) => {
     }
 })
 
+// Weather 2hr forecast selection
 bot.action('2hours', async (ctx) => {
-    try {
-        await ctx.deleteMessage()
-    } catch (error) {
-        console.error('Error deleting message:', error)
-    }
+    await deleteMessage(ctx);
     ctx.replyWithMarkdownV2('Check __2hr__ forecast for which area:', {
         reply_markup: {
             inline_keyboard: [
@@ -174,13 +146,10 @@ bot.action('2hours', async (ctx) => {
         }
     })
 })
-// 2hr sub-area buttons
+
+// Weather 2hr forecast followup keyboard
 bot.action(['northside', 'southside', 'centralside', 'eastside', 'westside'], async (ctx) => {
-    try {
-        await ctx.deleteMessage()
-    } catch (error) {
-        console.error('Error deleting message:', error)
-    }
+    await deleteMessage(ctx);
     const area = ctx.match[0]
     const keyboardMarkup = areaLocationKeyboard(area)
     // caps first letter and remove 'side' from end of str
@@ -188,12 +157,9 @@ bot.action(['northside', 'southside', 'centralside', 'eastside', 'westside'], as
     ctx.replyWithMarkdownV2(`Which part of *${formattedArea}* area:`, keyboardMarkup)
 })
 
+// Handle extracted 2hr forecast
 bot.action(/^location:(.+)$/, async (ctx) => {
-    try {
-        await ctx.deleteMessage()
-    } catch (error) {
-        console.error('Error deleting message:', error)
-    }
+    await deleteMessage(ctx);
     try {
         const fullLocation = ctx.match[1]
         const parts = fullLocation.split(':')
@@ -217,12 +183,9 @@ bot.action(/^location:(.+)$/, async (ctx) => {
     }
 })
 
+// Handle rain area selection
 bot.action('rainarea', async (ctx) => {
-    try {
-        await ctx.deleteMessage()
-    } catch (error) {
-        console.error('Error deleting message:', error)
-    }
+    await deleteMessage(ctx);
     try {
         const rainmap = await rainMapping()
         ctx.replyWithPhoto({ source: rainmap }, {
@@ -242,12 +205,10 @@ bot.action('rainarea', async (ctx) => {
         })
     }
 })
+
+// Handle UV index selection
 bot.action('uvindex', async (ctx) => {
-    try {
-        await ctx.deleteMessage()
-    } catch (error) {
-        console.error('Error deleting message:', error)
-    }
+    await deleteMessage(ctx);
     try {
         const forecast = await UVindex()
         ctx.replyWithMarkdownV2(`Current UV __Index__:\n\nUV Rating: *${forecast.rating}*\nUV Level: *${forecast.level}*\n\nUpdated ${forecast.time}`, {
@@ -268,17 +229,14 @@ bot.action('uvindex', async (ctx) => {
     }
 })
 
-// check map directions
+// Check map directions
 // using a variable to make sure user is commiting the interaction
 let userChoice = ''
 let destination = ''
 
+// Direct user to input destination
 bot.action('directions', async (ctx) => {
-    try {
-        await ctx.deleteMessage()
-    } catch (error) {
-        console.error('Error deleting message:', error)
-    }
+    await deleteMessage(ctx);
     userChoice = 'directions'
     ctx.replyWithMarkdownV2('Please enter *destination*:', {
         reply_markup: {
@@ -289,12 +247,9 @@ bot.action('directions', async (ctx) => {
     })
 })
 
+// Direct user to input start location
 bot.on(message('text'), async (ctx) => {
-    try {
-        await ctx.deleteMessage()
-    } catch (error) {
-        console.error('Error deleting message:', error)
-    }
+    await deleteMessage(ctx);
     if (userChoice === 'directions') {
         destination = ctx.message.text
         // reset user choice for next interaction
@@ -363,12 +318,9 @@ bot.on(message('text'), async (ctx) => {
     }
 })
 
+// Handle users current location method
 bot.action(['current_location', 'custom_location'], async (ctx) => {
-    try {
-        await ctx.deleteMessage()
-    } catch (error) {
-        console.error('Error deleting message:', error)
-    }
+    await deleteMessage(ctx);
     const choice = ctx.match[0]
     if (choice === 'current_location') {
         userChoice = 'current_location'
@@ -393,12 +345,9 @@ bot.action(['current_location', 'custom_location'], async (ctx) => {
     }
 })
 
+// Handle extracted directions
 bot.on(message('location'), async (ctx) => {
-    try {
-        await ctx.deleteMessage()
-    } catch (error) {
-        console.error('Error deleting message:', error)
-    }
+    await deleteMessage(ctx);
     if (userChoice === 'current_location') {
         const unformattedLocation = ctx.message.location
         const startingLocation = await getStartingAddress(unformattedLocation)
@@ -440,13 +389,9 @@ bot.on(message('location'), async (ctx) => {
     userChoice = ''
 })
 
-// bus timing
+// Check bus timings
 bot.action('bustiming', async (ctx) => {
-    try {
-        await ctx.deleteMessage()
-    } catch (error) {
-        console.error('Error deleting message:', error)
-    }
+    await deleteMessage(ctx);
     ctx.telegram.sendMessage(ctx.chat.id, 'Select which service to use:', {
         reply_markup: {
             inline_keyboard: [
@@ -457,28 +402,10 @@ bot.action('bustiming', async (ctx) => {
         }
     })
 })
-bot.action('busnearby', async (ctx) => {
-    try {
-        await ctx.deleteMessage()
-    } catch (error) {
-        console.error('Error deleting message:', error)
-    }
-    ctx.replyWithMarkdownV2('Select option for *starting* location:', {
-        reply_markup: {
-            inline_keyboard: [
-                [{ text: 'GPS Location', callback_data: 'current_bustops' }],
-                [{ text: 'Custom Location', callback_data: 'custom_bustops' }],
-                [{ text: 'Back', callback_data: 'bustiming' }]
-            ]
-        }
-    })
-})
+
+// Handle bus stop code via manual input method
 bot.action('buscode', async (ctx) => {
-    try {
-        await ctx.deleteMessage()
-    } catch (error) {
-        console.error('Error deleting message:', error)
-    }
+    await deleteMessage(ctx);
     userChoice = 'custom_busCode'
     const special_char = ['(', ')']
     const escapeMarkdown = (text) => {
@@ -492,13 +419,25 @@ bot.action('buscode', async (ctx) => {
             ]
         }
     })
-}) 
+})
+
+// Nearby bus stops discovery method
+bot.action('busnearby', async (ctx) => {
+    await deleteMessage(ctx);
+    ctx.replyWithMarkdownV2('Select option for *starting* location:', {
+        reply_markup: {
+            inline_keyboard: [
+                [{ text: 'GPS Location', callback_data: 'current_bustops' }],
+                [{ text: 'Custom Location', callback_data: 'custom_bustops' }],
+                [{ text: 'Back', callback_data: 'bustiming' }]
+            ]
+        }
+    })
+})
+
+// Nearby bus stops discovery method follow up
 bot.action(['current_bustops', 'custom_bustops'], async (ctx) => {
-    try {
-        await ctx.deleteMessage()
-    } catch (error) {
-        console.error('Error deleting message:', error)
-    }
+    await deleteMessage(ctx);
     const choice = ctx.match[0]
     if (choice === 'current_bustops') {
         userChoice = 'current_bustops'
@@ -522,12 +461,10 @@ bot.action(['current_bustops', 'custom_bustops'], async (ctx) => {
         })
     }
 })
+
+// Handle extracted bus stops timings
 bot.action(/Xb0e71mA3qM:\?(.+)/, async ctx => {
-    try {
-        await ctx.deleteMessage()
-    } catch (error) {
-        console.error('Error deleting message:', error)
-    }
+    await deleteMessage(ctx);
     const extractedBusstop = ctx.match[1]
 
     const busstopCode = await convertBusstopCode(extractedBusstop)
@@ -544,16 +481,18 @@ bot.action(/Xb0e71mA3qM:\?(.+)/, async ctx => {
 
     const busTimings = await getBusTimings(busstopCode)
 
-    // Because of telegram api's markdown we need preceding '\\' before using special char
+    // Due to telegram api's markdown, require preceding '\\' before using special char
     const special_char = ['\\', '-', '|', '.', ':']
     const escapeMarkdown = (text) => {
         special_char.forEach(char => (text = text.replaceAll(char, `\\${char}`)))
         return text
     }
-    // aligning it like a table to look more pleasing
+
+    // Aligning text for visual pleasure
     const headerRow = '``` |BusNo. |Next bus |Upcoming |\n'
     const columnPadding = headerRow.split('|').map(cell => ' '.repeat(cell.length))
-    // text to send to user
+
+    // Display text to user
     const currentTime = new Date()
     const formattedTime = currentTime.toLocaleTimeString('en-US', {
         hour: 'numeric',
@@ -579,6 +518,7 @@ bot.action(/Xb0e71mA3qM:\?(.+)/, async ctx => {
     })
     await ctx.answerCbQuery(`Bus stop code: ${extractedBusstop}`)
 })
+
 
 module.exports = {
     bot

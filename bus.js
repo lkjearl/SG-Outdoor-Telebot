@@ -8,7 +8,6 @@ async function getNearbyBusstop(startingLocation) {
         await page.setGeolocation({ latitude: 0, longitude: 0 })
 
         await page.goto(`https://www.google.com/search?q=bus+stop+near+${startingLocation}&tbm=lcl`)
-    
         await page.waitForSelector('span.OSrXXb')
         
         const busstopElements = await page.$$('span.OSrXXb')

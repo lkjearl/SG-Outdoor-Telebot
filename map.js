@@ -2,7 +2,6 @@ const puppeteer = require('puppeteer')
 
 async function getStartingAddress(location) {
     const url = `https://nominatim.openstreetmap.org/reverse?lat=${location.latitude}&lon=${location.longitude}&format=json`
-
     try {
         const response = await fetch(url)
         const result = await response.json()
@@ -18,16 +17,21 @@ async function getStartingAddress(location) {
 }
 
 async function getDirection(startingLocation, destination) {
+    let browser
     try {
-        const browser = await puppeteer.launch({ headless: "new" })
+        const browser = await puppeteer.launch({ headless: "new", args: ['--incognito'] })
         const page = await browser.newPage()
 
         await page.goto('https://www.google.com/maps/dir/')
-        // input locations
-        await page.type('#directions-searchbox-0 .tactile-searchbox-input', startingLocation)
-        await page.type('#directions-searchbox-1 .tactile-searchbox-input', destination)
 
-        await page.click('#directions-searchbox-1 button[data-tooltip="Search"]')
+        // Prevent google maps from using overseas location
+        const startingLocationMod = `${startingLocation} Singapore`
+        const destinationMod = `${destination} Singapore`
+
+        await page.type('#directions-searchbox-0 .tactile-searchbox-input', startingLocationMod)
+        await page.type('#directions-searchbox-1 .tactile-searchbox-input', destinationMod)
+        await page.click('#directions-searchbox-0 button[data-tooltip="Search"]')
+        await page.waitForNavigation()
 
         const travelMode = ['Driving', 'Motorcycle', 'Public Transport', 'Walking', 'Cycling']
         const travelInfo = []
@@ -52,13 +56,14 @@ async function getDirection(startingLocation, destination) {
                     url: transportUrl
                 })
             } else {
-                console.log(`Duration element not found for mode ${i}`);
+                console.log(`Duration element not found for mode ${i}`)
             }
         }
-        await browser.close()
         return travelInfo
     } catch (error) {
         throw new Error('Failed to scrape map direction')
+    } finally {
+        if (browser) await browser.close()
     }
 }
 
