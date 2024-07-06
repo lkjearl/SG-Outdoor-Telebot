@@ -47,7 +47,7 @@ npm install telegraf puppeteer jimp dotenv axios
 3. **Create a '.env' file and add API keys/ environment variables**
 ```
 TELEGRAM_BOT_TOKEN=<your_telegram_bot_token>
-'''
+```
 
 *Deploy to server (Heroku for example):*
 1. **Install CLI, login, navigate/create project directory**
