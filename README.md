@@ -35,30 +35,30 @@ Utilizing a Telegram messenger chatbot as the front-end interface, this project 
 ## Installation
 
 *To run locally:*
-    1. **Clone this repository**
-    ```bash
-    git clone https://github.com/lkjearl/SG-Outdoor-Telebot
-    cd sg-outdoor-telebot
-    ```
-    2. **Install required dependencies**
-    ```bash
-    npm install telegraf puppeteer jimp dotenv axios
-    ```
-    3. **Create a '.env' file and add API keys/ environment variables**
-    ```
-    TELEGRAM_BOT_TOKEN=<your_telegram_bot_token>
-    '''
+1. **Clone this repository**
+```bash
+git clone https://github.com/lkjearl/SG-Outdoor-Telebot
+cd sg-outdoor-telebot
+```
+2. **Install required dependencies**
+```bash
+npm install telegraf puppeteer jimp dotenv axios
+```
+3. **Create a '.env' file and add API keys/ environment variables**
+```
+TELEGRAM_BOT_TOKEN=<your_telegram_bot_token>
+'''
 
 *Deploy to server (Heroku for example):*
-    1. **Install CLI, login, navigate/create project directory**
-    2. **Setup environment**
-    ```bash
-    heroku config:set TELEGRAM_BOT_TOKEN=<your_telegram_bot_token>
-    ```
-    3. **Deploy application to heroku**
-    ```bash
-    git push heroku main
-    ```
+1. **Install CLI, login, navigate/create project directory**
+2. **Setup environment**
+```bash
+heroku config:set TELEGRAM_BOT_TOKEN=<your_telegram_bot_token>
+```
+3. **Deploy application to heroku**
+```bash
+git push heroku main
+```
 
 ## Usage
 
