@@ -6,8 +6,8 @@ Utilizing a Telegram messenger chatbot as the front-end interface, this project 
 
 ## Table of Contents
 
-- [Installation](#installation)
 - [Features](#features)
+- [Installation](#installation)
 - [Usage](#usage)
 - [Example Usge](#example-usage)
 - [Technologies Used](#technologies-used)
